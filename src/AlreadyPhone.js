@@ -26,11 +26,13 @@ function AlreadyPhone(props) {
 
       })
       const token = apiRs1?.data?.data?.token
+      console.log(token)
+      alert('Đăng nhập thành công')
 
-  await getPlayerInfo()
 
 
       localStorage.setItem('token', token)
+  await getPlayerInfo()
     }
     catch (e) {
       console.log(e, 'Có lỗi khi đăng nhập')
@@ -99,22 +101,30 @@ function AlreadyPhone(props) {
       return
     }
     try{
-      // Săn rồng
-      await handleGetDragon()
+      if (userInfo?.turn_of_scan > 0) {
+        // Săn rồng
+        await handleGetDragon()
 
-      // Chọn rồng mặc định
-      await setDefaultDragon()
+        // Chọn rồng mặc định
+        await setDefaultDragon()
+      }
+      else {
+        alert('Hết lượt lấy rồng')
+      }
 
       // Chơi game
       await autoPlay()
 
       // Lấy thông tin người chơi
       await getPlayerInfo()
+
     }
     catch (e) {
       console.log(e, 'Có lỗi khi chơi hộ')
     }
+
   }
+
 
   return (
     <div>
