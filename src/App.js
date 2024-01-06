@@ -1,14 +1,17 @@
 import './App.css';
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import axios from "axios";
 import AlreadyPhone from "./AlreadyPhone";
 import RedeemRewards from './RedeemRewards';
+import RewardsInfo from './RewardsInfo';
 
 const BASE_URL = 'https://dragongem.biasaigon.vn/sbar/api'
 
 function App() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
+const [rewardList, setRewardList] = useState([])
+
   const generateRandomEmail = () => {
     return Math.round(Math.random() * 100000) + "@gmail.com";
   }
@@ -75,9 +78,40 @@ function App() {
     await registerAccount()
   }
 
+  const getReward = async () => {
+    try {
+        const apiRs = await axios.post(`/sbar/api/get_rewards/`, {}, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `JWT ${localStorage.getItem('token')}`
+            }
+          })
+
+          const apiRs2 = await axios.post(`/sbar/api/redeem_reward/`, {
+            reward_id: 0,
+            telco: 'VT',
+          }, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `JWT ${localStorage.getItem('token')}`
+              }
+          })
+        console.log(apiRs)
+        setRewardList(apiRs?.data?.data || [])
+    } catch (error) {
+        console.log('Lay danh sach qua bi loi')
+    }
+}
+
+
+useEffect(() => {
+    getReward()
+}, [localStorage.getItem('token')])
+
 
   return (
     <div className="App">
+      <RewardsInfo rewardList={rewardList}/>
       <div>Đki mới
         <label htmlFor="input">Nhập sđt</label>
         <input id={'input'} value={phone} onChange={(e) => setPhone(e.target.value)}/>
@@ -88,8 +122,8 @@ function App() {
         <button onClick={handleSubmitOTP}>Xác nhận OTP</button>
       </div>
 
-      <AlreadyPhone />
-      <RedeemRewards />
+      <AlreadyPhone getReward={getReward}/>
+      {/* <RedeemRewards /> */}
     </div>
   );
 }

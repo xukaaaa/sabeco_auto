@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from "axios";
 const BASE_URL = 'https://dragongem.biasaigon.vn/sbar/api'
 
-function AlreadyPhone(props) {
+function AlreadyPhone({getReward}) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [userInfo, setUserInfo] = useState({});
@@ -10,35 +10,21 @@ function AlreadyPhone(props) {
   const [token, setToken] = useState('')
 
   const getPlayerInfo = async () => {
-    const apiRs2 = await axios.post(`/sbar/api/get_player_info/`, {}, {
-      headers: {
-        Authorization: `JWT ${localStorage.getItem('token')}`
-      }
-    })
-    const user_info = apiRs2?.data?.data
-    setAvaiablePlay(user_info?.turn_of_single_play)
-    setUserInfo(user_info)
-  }
-  const handleLogin = async () => {
     try {
-      const apiRs1 = await axios.post(`/sbar/api/login/`, {
-        phone_number: username,
-        password: password,
-
+      const apiRs2 = await axios.post(`/sbar/api/get_player_info/`, {}, {
+        headers: {
+          Authorization: `JWT ${localStorage.getItem('token')}`
+        }
       })
-      const token = apiRs1?.data?.data?.token
-      console.log(token)
-      alert('Đăng nhập thành công')
-
-
-
-      localStorage.setItem('token', token)
-  await getPlayerInfo()
-    }
-    catch (e) {
-      console.log(e, 'Có lỗi khi đăng nhập')
+      const user_info = apiRs2?.data?.data
+      setAvaiablePlay(user_info?.turn_of_single_play)
+      setUserInfo(user_info)
+      return user_info
+    } catch (error) {
+      
     }
   }
+  
 
   const handleGetDragon = async () => {
     try {
@@ -74,10 +60,10 @@ function AlreadyPhone(props) {
    }
   }
 
-  const autoPlay = async () => {
+  const autoPlay = async (newUserInfo) => {
 
-    try {
-      for (let level = 1; level <= avaiablePlay; level++) {
+    for (let level = 1; level <= newUserInfo.turn_of_single_play; level++) {
+        try {
 
         const apiRs = await axios.post(`/sbar/api/end_single_play_game/`, {
           "is_win": "true",
@@ -89,9 +75,9 @@ function AlreadyPhone(props) {
         });
         console.log(`Gửi thành công với level: ${level}`);
         console.log(apiRs.data); // In ra dữ liệu từ phản hồi của API nếu cần
+      } catch (error) {
+        continue
       }
-    } catch (error) {
-      console.error('Đã xảy ra lỗi:', error);
     }
   }
 
@@ -130,23 +116,102 @@ function AlreadyPhone(props) {
     localStorage.setItem('token', token)
   }
 
+  
+
+  const handleLogin = async () => {
+    console.log(username.split('\n').map(item => item.replace(/\./g, '').trim()))
+    const listPhone = username.split('\n').map(item => item.trim())
+    try {
+      for (let i = 0; i< listPhone.length; i++) {
+        const apiRs1 = await axios.post(`/sbar/api/login/`, {
+              phone_number: listPhone[i],
+              password: password,
+      
+            })
+            const token = apiRs1?.data?.data?.token
+            if(token) {
+              console.log(token)
+            // alert('Đăng nhập thành công')
+      
+      
+      
+            localStorage.setItem('token', token)
+            setToken(token)
+            getReward()
+            const newUserInfo = await getPlayerInfo()
+
+            // wait 1s
+            if(newUserInfo.turn_of_single_play === 0) {
+              alert(`Số ${newUserInfo?.phone_number} hết lượt chơi`)
+              continue
+            }
+              if (newUserInfo?.turn_of_scan > 0) {
+                // Săn rồng
+                await handleGetDragon()
+        
+                // Chọn rồng mặc định
+                await setDefaultDragon()
+              }
+              else {
+                alert('Hết lượt lấy rồng')
+              }
+        
+              // Chơi game
+              await autoPlay(newUserInfo)
+        
+              // Lấy thông tin người chơi
+              await getPlayerInfo()
+        
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));}
+            else{
+              continue
+            }
+      }
+    } catch (error) {
+      console.log(error)
+    }
+    // try {
+    //   const apiRs1 = await axios.post(`/sbar/api/login/`, {
+    //     phone_number: username,
+    //     password: password,
+
+    //   })
+    //   const token = apiRs1?.data?.data?.token
+    //   console.log(token)
+    //   alert('Đăng nhập thành công')
+
+
+
+    //   localStorage.setItem('token', token)
+    //   await getPlayerInfo()
+    // }
+    // catch (e) {
+    //   console.log(e, 'Có lỗi khi đăng nhập')
+    // }
+  }
+
+  useEffect(() => {
+    getPlayerInfo()
+  }, [])
 
   return (
     <div>
       Đã đki, cần choi lay diem
-      {userInfo && (<div>{JSON.stringify(userInfo)}</div>)}
+      {userInfo && (<div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        textAlign: 'left',
+      }}>{JSON.stringify(userInfo)}</div>)}
       <label htmlFor="username">Nhập sđt</label>
-      <input value={username} onChange={(e) => setUsername(e.target.value)}/>
+      <textarea value={username} onChange={(e) => setUsername(e.target.value)}/>
 
       <label htmlFor="username">Nhập password</label>
       <input value={password} onChange={(e) => setPassword(e.target.value)}/>
 
       <button onClick={handleLogin} >Đăng nhập</button>
-
-
-      <input value={token} onChange={(e) => setToken(e.target.value)}/>
-      <button onClick={handleLoginWithToken}>Đăng nhập bằng token thay vì sđt, mật khẩu</button>
-      <button onClick={handlePlay} >Chơi hộ</button>
+    
     </div>
   );
 }
