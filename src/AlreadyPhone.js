@@ -7,6 +7,7 @@ function AlreadyPhone(props) {
   const [password, setPassword] = useState("");
   const [userInfo, setUserInfo] = useState({});
   const [avaiablePlay, setAvaiablePlay] = useState(0);
+  const [token, setToken] = useState('')
 
   const getPlayerInfo = async () => {
     const apiRs2 = await axios.post(`/sbar/api/get_player_info/`, {}, {
@@ -125,6 +126,10 @@ function AlreadyPhone(props) {
 
   }
 
+  const handleLoginWithToken = () => {
+    localStorage.setItem('token', token)
+  }
+
 
   return (
     <div>
@@ -137,6 +142,10 @@ function AlreadyPhone(props) {
       <input value={password} onChange={(e) => setPassword(e.target.value)}/>
 
       <button onClick={handleLogin} >Đăng nhập</button>
+
+
+      <input value={token} onChange={(e) => setToken(e.target.value)}/>
+      <button onClick={handleLoginWithToken}>Đăng nhập bằng token thay vì sđt, mật khẩu</button>
       <button onClick={handlePlay} >Chơi hộ</button>
     </div>
   );

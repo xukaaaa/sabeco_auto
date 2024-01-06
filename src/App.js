@@ -2,6 +2,7 @@ import './App.css';
 import {useState} from "react";
 import axios from "axios";
 import AlreadyPhone from "./AlreadyPhone";
+import RedeemRewards from './RedeemRewards';
 
 const BASE_URL = 'https://dragongem.biasaigon.vn/sbar/api'
 
@@ -14,7 +15,7 @@ function App() {
 
   const getOTP = async () => {
     try {
-      await axios.post(`${BASE_URL}/get_otp/`, {
+      await axios.post(`sbar/api/get_otp/`, {
         phone_number: phone,
       })
     }
@@ -26,7 +27,7 @@ function App() {
 
   const registerAccount = async () => {
     try {
-      const apiRs = await axios.post(`${BASE_URL}/registry/`, {
+      const apiRs = await axios.post(`/sbar/api/registry/`, {
         email: generateRandomEmail(),
         full_name: 'Nguyen Van A',
         location: "Hà Nội",
@@ -39,6 +40,11 @@ function App() {
         return
       }
       // return apiRs.
+
+      localStorage.setItem('token', apiRs?.data?.data?.token)
+
+      // lay token in ra
+      console.log(phone, '111000zZ', apiRs?.data?.data?.token)
     }
     catch (e) {
       console.log(e, 'Có lỗi khi đăng ký')
@@ -53,9 +59,7 @@ function App() {
       return
     }
     try {
-      console.log(phone)
       await getOTP()
-      console.log('get otp success')
     }
     catch (e) {
       console.log(e)
@@ -63,12 +67,12 @@ function App() {
     }
   }
 
-  const handleSubmitOTP = () => {
+  const handleSubmitOTP = async() => {
     if (!otp) {
       alert('Vui lòng nhập mã OTP')
       return
     }
-    console.log(otp)
+    await registerAccount()
   }
 
 
@@ -85,6 +89,7 @@ function App() {
       </div>
 
       <AlreadyPhone />
+      <RedeemRewards />
     </div>
   );
 }
