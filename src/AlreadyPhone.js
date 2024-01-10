@@ -8,6 +8,7 @@ function AlreadyPhone({getReward}) {
   const [userInfo, setUserInfo] = useState({});
   const [avaiablePlay, setAvaiablePlay] = useState(0);
   const [token, setToken] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const getPlayerInfo = async () => {
     try {
@@ -119,6 +120,7 @@ function AlreadyPhone({getReward}) {
   
 
   const handleLogin = async () => {
+    setIsLoading(true)
     const listPhone = username.split('\n').map(item => item.trim())
     try {
       for (let i = 0; i< listPhone.length; i++) {
@@ -188,9 +190,12 @@ function AlreadyPhone({getReward}) {
     // catch (e) {
     //   console.log(e, 'Có lỗi khi đăng nhập')
     // }
+
+    setIsLoading(false)
   }
 
   const getGrabVoucher = async () => {
+    setIsLoading(true)
     const listPhone = username.split('\n').map(item => item.trim())
     try {
       for (let i = 0; i< listPhone.length; i++) {
@@ -230,11 +235,13 @@ function AlreadyPhone({getReward}) {
     } }catch(e) {
       console.log(e, 'Có lỗi khi đăng nhập')
     }
+    setIsLoading(false)
   }
 
   
 
   const getShopeeVoucher = async () => {
+    setIsLoading(true)
     const listPhone = username.split('\n').map(item => item.trim())
     try {
       for (let i = 0; i< listPhone.length; i++) {
@@ -273,6 +280,7 @@ function AlreadyPhone({getReward}) {
     } }catch(e) {
       console.log(e, 'Có lỗi khi đăng nhập')
     }
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -294,9 +302,9 @@ function AlreadyPhone({getReward}) {
       <label htmlFor="username">Nhập password</label>
       <input value={password} onChange={(e) => setPassword(e.target.value)}/>
 
-      <button onClick={handleLogin} >Tự chơi lấy điểm</button>
-      <button onClick={getGrabVoucher}>Đổi voucher grab</button>
-      <button onClick={getShopeeVoucher}>Đổi voucher shopee</button>
+      <button disabled={isLoading} onClick={handleLogin} >Tự chơi lấy điểm</button>
+      <button disabled={isLoading} onClick={getGrabVoucher}>Đổi voucher grab</button>
+      <button disabled={isLoading} onClick={getShopeeVoucher}>Đổi voucher shopee</button>
     
     </div>
   );
