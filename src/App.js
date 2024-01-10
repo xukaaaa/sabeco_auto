@@ -87,16 +87,16 @@ const [rewardList, setRewardList] = useState([])
             }
           })
 
-          const apiRs2 = await axios.post(`/sbar/api/redeem_reward/`, {
-            reward_id: 0,
-            telco: 'VT',
-          }, {
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `JWT ${localStorage.getItem('token')}`
-              }
-          })
-        console.log(apiRs)
+          // const apiRs2 = await axios.post(`/sbar/api/redeem_reward/`, {
+          //   reward_id: 0,
+          //   telco: 'VT',
+          // }, {
+          //   headers: {
+          //       "Content-Type": "application/json",
+          //       Authorization: `JWT ${localStorage.getItem('token')}`
+          //     }
+          // })
+        // console.log(apiRs)
         setRewardList(apiRs?.data?.data || [])
     } catch (error) {
         console.log('Lay danh sach qua bi loi')

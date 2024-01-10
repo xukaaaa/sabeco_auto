@@ -119,7 +119,6 @@ function AlreadyPhone({getReward}) {
   
 
   const handleLogin = async () => {
-    console.log(username.split('\n').map(item => item.replace(/\./g, '').trim()))
     const listPhone = username.split('\n').map(item => item.trim())
     try {
       for (let i = 0; i< listPhone.length; i++) {
@@ -191,6 +190,91 @@ function AlreadyPhone({getReward}) {
     // }
   }
 
+  const getGrabVoucher = async () => {
+    const listPhone = username.split('\n').map(item => item.trim())
+    try {
+      for (let i = 0; i< listPhone.length; i++) {
+        const apiRs1 = await axios.post(`/sbar/api/login/`, {
+              phone_number: listPhone[i],
+              password: password,
+      
+        })
+        const token = apiRs1?.data?.data?.token
+        if(token) {
+            // alert('Đăng nhập thành công')
+      
+      
+      
+            localStorage.setItem('token', token)
+            setToken(token)
+            getReward()
+            const newUserInfo = await getPlayerInfo()
+
+            // wait 1s
+            const voucher = await axios.post(`/sbar/api/redeem_reward/`,{
+              reward_id: 2,
+            } , {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `JWT ${localStorage.getItem('token')}`
+              }
+            })
+            console.log(`${voucher.data?.voucher_code} -  ${voucher.data?.msg}}`)
+
+          }
+          else {
+            continue
+          }
+            
+      
+    } }catch(e) {
+      console.log(e, 'Có lỗi khi đăng nhập')
+    }
+  }
+
+  
+
+  const getShopeeVoucher = async () => {
+    const listPhone = username.split('\n').map(item => item.trim())
+    try {
+      for (let i = 0; i< listPhone.length; i++) {
+        const apiRs1 = await axios.post(`/sbar/api/login/`, {
+              phone_number: listPhone[i],
+              password: password,
+      
+        })
+        const token = apiRs1?.data?.data?.token
+        if(token) {
+            // alert('Đăng nhập thành công')
+      
+      
+      
+            localStorage.setItem('token', token)
+            setToken(token)
+            getReward()
+            const newUserInfo = await getPlayerInfo()
+
+            // wait 1s
+            const voucher = await axios.post(`/sbar/api/redeem_reward/`,{
+              reward_id: 3,
+            } , {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `JWT ${localStorage.getItem('token')}`
+              }
+            })
+            console.log(`${voucher.data?.voucher_code} -  ${voucher.data?.msg}}`)
+          }
+          else {
+            continue
+          }
+            
+      
+    } }catch(e) {
+      console.log(e, 'Có lỗi khi đăng nhập')
+    }
+  }
+
   useEffect(() => {
     getPlayerInfo()
   }, [])
@@ -210,7 +294,9 @@ function AlreadyPhone({getReward}) {
       <label htmlFor="username">Nhập password</label>
       <input value={password} onChange={(e) => setPassword(e.target.value)}/>
 
-      <button onClick={handleLogin} >Đăng nhập</button>
+      <button onClick={handleLogin} >Tự chơi lấy điểm</button>
+      <button onClick={getGrabVoucher}>Đổi voucher grab</button>
+      <button onClick={getShopeeVoucher}>Đổi voucher shopee</button>
     
     </div>
   );
